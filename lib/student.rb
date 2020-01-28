@@ -5,8 +5,12 @@ class Student
   # Remember, you can access your database connection anywhere in this class
   #  with DB[:conn]  
   
+
   attr_accessor :name, :grade
   attr_reader :id
+
+  attr_accessor :id, :name, :grade
+
   
   
   def initialize(name, grade, id = nil)
@@ -30,6 +34,7 @@ class Student
   
   
   
+
   def self.drop_table
     sql =  <<-SQL 
       DROP TABLE IF EXISTS students
@@ -39,6 +44,7 @@ class Student
   
   
   
+
   def save
     sql = <<-SQL
       INSERT INTO students (name, grade) 
@@ -52,12 +58,25 @@ class Student
   end
   
   
+
   def self.create(name, grade)
     student = self.new(name, grade)
+
+  
+  def self.create(name, grade)
+    student = Student.new(name, grade)
+
     student.save
     student
   end
   
+
+    def self.drop_table
+    sql =  <<-SQL 
+      DROP TABLE IF EXISTS students
+        SQL
+    DB[:conn].execute(sql) 
+  end
   
 end
 
