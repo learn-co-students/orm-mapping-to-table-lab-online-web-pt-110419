@@ -1,3 +1,4 @@
+require 'pry'
 class Student
 
   attr_accessor :name, :grade 
@@ -19,7 +20,7 @@ class Student
       DB[:conn].execute(sql) 
     end
 
-  def self.drop_table
+    def self.drop_table
     sql = <<-SQL
     DROP TABLE IF EXISTS students;
     SQL
@@ -45,7 +46,69 @@ class Student
 
   end
 
-  # Remember, you can access your database connection anywhere in this class
-  #  with DB[:conn]  
-  
+  def self.new_from_db(row)
+    new_student = self.new
+    new_student.id = row[0]
+    new_student.name = row[1]
+    new_student.grade = row[2]
+    new_student
+  end  
+
+  def self.find_by_name(name)
+    sql = <<-SQL 
+    SELECT *
+    FROM students
+    WHERE name = ?
+    LIMIT 1
+    SQL
+    
+    DB[:conn].execute(sql,name).map do (row)
+      self.new_from_db(row)
+    end.first
+    
+  end
+
+  def self.all
+    sql = <<-SQL
+    SELECT *
+    FROM students
+    SQL
+    
+    DB[:conn].execute(sql).map do |row|
+      self.new_from_db(row)
+  end 
+    
+  def self.all_students_in_grade_9
+    sql = <<-SQL
+    SELECT *
+    FROM students
+    WHERE student.grade = "9"
+    GROUP BY student.name
+    SQL
+
+    DB[:conn].execute(sql, self.grade).map do |row|
+      self.new_from_db(row)
+    end
+  end 
+
+  def self.students_below_12th_grade
+    sql = <<-SQL
+    SELECT *
+    FROM students
+    WHERE student.grade < "12"
+    GROUP BY student.name
+    SQL
+
+    DB[:conn].execute(sql, self.grade).map do |row|
+      self.new_from_db(row)
+    end
+  end
 end
+end
+
+
+
+#   # Remember, you can access your database connection anywhere in this class
+#   #  with DB[:conn]  
+  
+ 
